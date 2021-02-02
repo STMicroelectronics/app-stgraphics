@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/vertical_margin"
+    android:paddingEnd="@dimen/horizontal_margin"
+    android:paddingStart="@dimen/horizontal_margin"
+    android:paddingTop="@dimen/vertical_margin"
+    tools:context=".MainActivity">
+
+    <android.opengl.GLSurfaceView
+        android:id="@+id/gl_surface"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/graphics_list"
+        />
+
+    <LinearLayout
+        android:id="@+id/graphics_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="@dimen/vertical_margin_quarter">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="0.35"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/shapes_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/vertical_margin_half"
+                android:paddingTop="@dimen/vertical_margin_quarter"
+                android:paddingBottom="@dimen/vertical_margin_quarter"
+                app:cardCornerRadius="4dp"
+                app:cardBackgroundColor="@color/colorPrimaryDark"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/shapes_title"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/dimensions_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="@dimen/vertical_margin_half"
+                android:switchMinWidth="@dimen/switch_min_width"
+                android:checked="false"
+                android:text="@string/switch_3d"
+                android:textOn="@string/switch_3d"
+                android:textOff="@string/switch_2d"
+                style="@style/Switch"/>
+
+            <Button
+                android:id="@+id/shape_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="@dimen/vertical_margin_half"
+                android:text="@string/triangle_key_name"
+                style="@style/Button"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="0.65"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/settings_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/vertical_margin_quarter"
+                android:paddingBottom="@dimen/vertical_margin_quarter"
+                android:layout_marginBottom="@dimen/vertical_margin_half"
+                app:cardCornerRadius="4dp"
+                app:cardBackgroundColor="@color/colorPrimaryDark"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/settings_title"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+
+            </androidx.cardview.widget.CardView>
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:rowCount="4">
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/light_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/horizontal_margin_quarter"
+                    android:layout_marginEnd="@dimen/horizontal_margin_quarter"
+                    android:layout_gravity="fill"
+                    android:layout_row="0"
+                    android:layout_column="0"
+                    android:layout_columnWeight="1"
+                    android:checked="false"
+                    android:switchMinWidth="@dimen/switch_min_width"
+                    android:text="@string/light"
+                    android:textOff="@string/switch_off"
+                    android:textOn="@string/switch_on"
+                    android:visibility="invisible"
+                    style="@style/Switch"/>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/color_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/horizontal_margin_quarter"
+                    android:layout_marginEnd="@dimen/horizontal_margin_quarter"
+                    android:layout_gravity="fill"
+                    android:layout_row="1"
+                    android:layout_column="0"
+                    android:layout_columnWeight="1"
+                    android:checked="false"
+                    android:switchMinWidth="@dimen/switch_min_width"
+                    android:text="@string/colors"
+                    android:textOff="@string/switch_off"
+                    android:textOn="@string/switch_on"
+                    style="@style/Switch"/>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/color_gradient_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/horizontal_margin_quarter"
+                    android:layout_marginEnd="@dimen/horizontal_margin_quarter"
+                    android:layout_gravity="fill"
+                    android:layout_row="1"
+                    android:layout_column="1"
+                    android:layout_columnWeight="1"
+                    android:checked="false"
+                    android:switchMinWidth="@dimen/switch_min_width"
+                    android:text="@string/gradient"
+                    android:textOff="@string/switch_off"
+                    android:textOn="@string/switch_on"
+                    android:visibility="invisible"
+                    style="@style/Switch"/>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/texture_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/horizontal_margin_quarter"
+                    android:layout_marginEnd="@dimen/horizontal_margin_quarter"
+                    android:layout_gravity="fill"
+                    android:layout_row="2"
+                    android:layout_column="0"
+                    android:layout_columnWeight="1"
+                    android:checked="false"
+                    android:switchMinWidth="@dimen/switch_min_width"
+                    android:text="@string/texture"
+                    android:textOff="@string/switch_off"
+                    android:textOn="@string/switch_on"
+                    style="@style/Switch"/>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/kinetic_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/horizontal_margin_quarter"
+                    android:layout_marginEnd="@dimen/horizontal_margin_quarter"
+                    android:layout_gravity="fill"
+                    android:layout_row="3"
+                    android:layout_column="0"
+                    android:layout_columnWeight="1"
+                    android:checked="false"
+                    android:switchMinWidth="@dimen/switch_min_width"
+                    android:text="@string/kinetic"
+                    android:textOff="@string/switch_off"
+                    android:textOn="@string/switch_on"
+                    android:visibility="invisible"
+                    style="@style/Switch"/>
+
+            </GridLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

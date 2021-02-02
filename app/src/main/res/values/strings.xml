@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">ST Graphics</string>
+
+    <string name="graphics_key_name">Graphics</string>
+    <string name="graphics_key_content_desc">key to graphics demo list</string>
+
+    <string name="shapes_title">Shapes</string>
+
+    <string name="pyramid_key_name">Pyramid</string>
+    <string name="cube_key_name">Cube</string>
+    <string name="sphere_key_name">Sphere</string>
+
+    <string name="triangle_key_name">Triangle</string>
+    <string name="square_key_name">Square</string>
+    <string name="circle_key_name">Circle</string>
+
+    <string name="switch_2d">2D</string>
+    <string name="switch_3d">3D</string>
+
+    <string name="settings_title">Settings</string>
+
+    <string name="light">Light </string>
+    <string name="colors">Colors </string>
+    <string name="gradient">Gradient </string>
+    <string name="texture">Texture </string>
+    <string name="kinetic">Kinetic </string>
+
+    <string name="switch_on">ON</string>
+    <string name="switch_off">OFF</string>
+
+</resources>
