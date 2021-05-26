@@ -4,10 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/vertical_margin_half"
-    android:paddingEnd="@dimen/horizontal_margin_half"
-    android:paddingStart="@dimen/horizontal_margin_half"
-    android:paddingTop="@dimen/vertical_margin_half"
     tools:context=".MainActivity">
 
     <android.opengl.GLSurfaceView
@@ -26,6 +22,8 @@
         android:id="@+id/graphics_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingEnd="@dimen/horizontal_margin_half"
+        android:paddingStart="@dimen/horizontal_margin_half"
         android:orientation="horizontal"
         android:baselineAligned="false"
         app:layout_constraintStart_toStartOf="parent"
@@ -70,7 +68,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="@dimen/vertical_margin_half"
                 android:switchMinWidth="@dimen/switch_min_width"
-                android:checked="false"
+                android:checked="true"
                 android:text="@string/switch_3d"
                 android:textOn="@string/switch_3d"
                 android:textOff="@string/switch_2d"
@@ -145,7 +143,7 @@
                     android:layout_row="1"
                     android:layout_column="0"
                     android:layout_columnWeight="1"
-                    android:checked="false"
+                    android:checked="true"
                     android:switchMinWidth="@dimen/switch_min_width"
                     android:text="@string/colors"
                     android:textOff="@string/switch_off"

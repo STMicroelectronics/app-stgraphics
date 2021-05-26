@@ -35,18 +35,18 @@ public class GraphicsRenderer implements GLSurfaceView.Renderer {
     public final static String SQUARE = "Square";
     public final static String CIRCLE = "Circle";
 
-    private final TriangleRenderer mTriangleRenderer;
-    private final SquareRenderer mSquareRenderer;
-    private final CircleRenderer mCircleRenderer;
+    private TriangleRenderer mTriangleRenderer;
+    private SquareRenderer mSquareRenderer;
+    private CircleRenderer mCircleRenderer;
 
     // 3D shapes
     public final static String PYRAMID = "Pyramid";
     public final static String CUBE = "Cube";
     public final static String SPHERE = "Sphere";
 
-    private final PyramidRenderer mPyramidRenderer;
-    private final CubeRenderer mCubeRenderer;
-    private final SphereRenderer mSphereRenderer;
+    private PyramidRenderer mPyramidRenderer;
+    private CubeRenderer mCubeRenderer;
+    private SphereRenderer mSphereRenderer;
 
     // Settings
     private String mCurrentShape;
@@ -58,16 +58,19 @@ public class GraphicsRenderer implements GLSurfaceView.Renderer {
     private boolean mKineticEnabled = false;
     private boolean m3DEnabled;
 
+    private final Context mContext;
+
     public GraphicsRenderer(Context context, String shape) {
         // 3D shapes
-        mCubeRenderer = new CubeRenderer(context);
-        mSphereRenderer = new SphereRenderer(context);
-        mPyramidRenderer = new PyramidRenderer(context);
+        // mCubeRenderer = new CubeRenderer(context);
+        // mSphereRenderer = new SphereRenderer(context);
+        // mPyramidRenderer = new PyramidRenderer(context);
 
         // 2D shapes
-        mTriangleRenderer = new TriangleRenderer(context);
-        mSquareRenderer = new SquareRenderer(context);
-        mCircleRenderer = new CircleRenderer(context);
+        // mTriangleRenderer = new TriangleRenderer(context);
+        // mSquareRenderer = new SquareRenderer(context);
+        // mCircleRenderer = new CircleRenderer(context);
+        mContext = context;
 
         Timber.d("Shape %s START", shape);
 
@@ -99,10 +102,19 @@ public class GraphicsRenderer implements GLSurfaceView.Renderer {
     private Shape2DRenderer get2DRenderer(String shape) {
         switch (shape) {
             case TRIANGLE:
+                if (mTriangleRenderer == null) {
+                    mTriangleRenderer = new TriangleRenderer(mContext);
+                }
                 return mTriangleRenderer;
             case SQUARE:
+                if (mSquareRenderer == null) {
+                    mSquareRenderer = new SquareRenderer(mContext);
+                }
                 return mSquareRenderer;
             case CIRCLE:
+                if (mCircleRenderer == null) {
+                    mCircleRenderer = new CircleRenderer(mContext);
+                }
                 return mCircleRenderer;
             default:
                 Timber.e("Unknown shape %s", shape);
@@ -119,10 +131,19 @@ public class GraphicsRenderer implements GLSurfaceView.Renderer {
     private Shape3DRenderer get3DRenderer(String shape) {
         switch (shape) {
             case PYRAMID:
+                if (mPyramidRenderer == null) {
+                    mPyramidRenderer = new PyramidRenderer(mContext);
+                }
                 return mPyramidRenderer;
             case CUBE:
+                if (mCubeRenderer == null) {
+                    mCubeRenderer = new CubeRenderer(mContext);
+                }
                 return mCubeRenderer;
             case SPHERE:
+                if (mSphereRenderer == null) {
+                    mSphereRenderer = new SphereRenderer(mContext);
+                }
                 return mSphereRenderer;
             default:
                 Timber.e("Unknown shape %s", shape);
@@ -174,7 +195,6 @@ public class GraphicsRenderer implements GLSurfaceView.Renderer {
                     mCurrent2DRenderer.setColorGradient(mColorGradientEnabled);
                     mCurrent2DRenderer.setTextureState(mTextureEnabled);
                 }
-                mCurrentShape = shape;
             } else {
                 mCurrent3DRenderer = get3DRenderer(shape);
                 if (mCurrent3DRenderer != null) {
@@ -185,6 +205,7 @@ public class GraphicsRenderer implements GLSurfaceView.Renderer {
                     mCurrent3DRenderer.setKineticState(mKineticEnabled);
                 }
             }
+            mCurrentShape = shape;
             mRendererChanged.set(true);
         }
     }
@@ -215,6 +236,9 @@ public class GraphicsRenderer implements GLSurfaceView.Renderer {
             mCurrent2DRenderer.onDrawFrame(gl);
         }
     }
+
+
+
 
     /**
      * Pause the active shape renderer

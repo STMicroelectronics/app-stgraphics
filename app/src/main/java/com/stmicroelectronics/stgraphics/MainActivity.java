@@ -16,8 +16,10 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowMetrics;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.stmicroelectronics.stgraphics.renderer.GraphicsRenderer;
@@ -35,11 +37,13 @@ public class MainActivity extends AppCompatActivity {
     SwitchCompat mKineticSwitch;
     SwitchCompat mDimensionsSwitch;
     Button mSwapShapesButton;
+    LinearLayout mGraphicsList;
 
     private GraphicsRenderer mGraphicsRenderer;
 
     private Point mCenter;
     private Point mOrigin = new Point(0,0);
+    private int mTouchLimitY;
 
     private boolean mLightEnabled = false;
     private boolean mColorsEnabled = false;
@@ -67,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         mKineticSwitch = findViewById(R.id.kinetic_switch);
         mDimensionsSwitch = findViewById(R.id.dimensions_switch);
         mSwapShapesButton = findViewById(R.id.shape_button);
+        mGraphicsList = findViewById(R.id.graphics_list);
 
         float dpHeight, dpWidth;
         float density = getResources().getDisplayMetrics().density;
@@ -84,12 +89,17 @@ public class MainActivity extends AppCompatActivity {
             dpWidth = outMetrics.widthPixels / density;
         }
 
-        if (BuildConfig.DEBUG) {
-            Timber.uprootAll();
-            Timber.plant(new Timber.DebugTree());
-        }
-
         Timber.d("Display width / height: %f x %f", dpWidth, dpHeight);
+
+        mGraphicsList.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mGraphicsList.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                int[] location = new int[2];
+                mGraphicsList.getLocationOnScreen(location);
+                mTouchLimitY = location[1];
+            }
+        });
 
         mLightSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,6 +128,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         mColorsEnabled = mColorsSwitch.isChecked();
+        if (mColorsEnabled) {
+            mColorGradientSwitch.setVisibility(View.VISIBLE);
+        } else {
+            mColorGradientSwitch.setVisibility(View.INVISIBLE);
+        }
 
         mColorGradientSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -209,6 +224,8 @@ public class MainActivity extends AppCompatActivity {
                 mGraphicsRenderer = new GraphicsRenderer(this, mList2DShapes[shapeIndex]);
             }
 
+            mGraphicsRenderer.setColorState(mColorsEnabled);
+
             if (mGraphicsRenderer.isKineticManaged()) {
                 mKineticSwitch.setVisibility(View.VISIBLE);
             } else {
@@ -226,6 +243,11 @@ public class MainActivity extends AppCompatActivity {
             mSurface.getHolder().setFormat(PixelFormat.RGBA_8888);
             mSurface.setRenderer(mGraphicsRenderer);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
     }
 
     // used to swap between shapes
@@ -269,6 +291,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+
+        if (event.getY() > mTouchLimitY) {
+            return true;
+        }
 
         Point destination = new Point((int) event.getX(), (int) event.getY());
 
