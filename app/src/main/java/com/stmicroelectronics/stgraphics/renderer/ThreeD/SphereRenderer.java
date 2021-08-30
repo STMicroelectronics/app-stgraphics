@@ -3,6 +3,7 @@ package com.stmicroelectronics.stgraphics.renderer.ThreeD;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import android.os.SystemClock;
 
 import com.stmicroelectronics.stgraphics.R;
 import com.stmicroelectronics.stgraphics.utils.ShaderHelper;
@@ -16,23 +17,21 @@ import java.nio.FloatBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import timber.log.Timber;
-
 /**
  * GL surface renderer for Sphere
  */
 public class SphereRenderer extends Shape3DRenderer {
 
     // Angle step between sphere points in degrees
-    private final static float SPHERE_ANGLE_STEP = 2f;
-    private final static float SATELITE_ANGLE_STEP = 5f;
+    private final static float SPHERE_ANGLE_STEP = 3f;
+    private final static float SATELLITE_ANGLE_STEP = 5f;
 
     // Sphere radius (normalized)
-    private final static float SPHERE_RADIUS = 0.6f;
-    private final static float SATELITE_RADIUS = 0.1f;
+    private final static float SPHERE_RADIUS = 0.5f;
+    private final static float SATELLITE_RADIUS = 0.1f;
 
-    private final static float SATELITE_ORBIT_RADIUS = 0.85f;
-    private final static float SATELITE_ORBIT_ANGLE = 35.0f;
+    private final static float SATELLITE_ORBIT_RADIUS = 0.85f;
+    private final static float SATELLITE_ORBIT_ANGLE = 35.0f;
 
     // How many bytes per float
     private final static int NB_BYTES_PER_FLOAT = 4;
@@ -42,12 +41,12 @@ public class SphereRenderer extends Shape3DRenderer {
     private final FloatBuffer mVerticesColor;
     private final FloatBuffer mVerticesColorGradient;
 
-    private final FloatBuffer mVerticesSateliteNoColor;
-    private final FloatBuffer mVerticesSateliteColorGradient;
-    private final FloatBuffer mVerticesSateliteColor;
+    private final FloatBuffer mVerticesSatelliteNoColor;
+    private final FloatBuffer mVerticesSatelliteColorGradient;
+    private final FloatBuffer mVerticesSatelliteColor;
 
     private final FloatBuffer mTextureCoordinateBuffer;
-    private final FloatBuffer mTextureSateliteCoordinateBuffer;
+    private final FloatBuffer mTextureSatelliteCoordinateBuffer;
 
     /**
      * Store the view matrix. This can be thought of as our camera. This matrix transforms world space to eye space;
@@ -60,12 +59,12 @@ public class SphereRenderer extends Shape3DRenderer {
      * of being located at the center of the universe) to world space.
      */
     private final float[] mModelMatrix = new float[16];
-    private final float[] mModelSateliteMatrix = new float[16];
+    private final float[] mModelSatelliteMatrix = new float[16];
 
     private final float[] mAccumulatedRotation = new float[16];
     private final float[] mCurrentRotation = new float[16];
 
-    private float mSateliteAngle;
+    private float mSatelliteAngle;
 
     /**
      * Store the light position.
@@ -81,13 +80,15 @@ public class SphereRenderer extends Shape3DRenderer {
     private int mFragmentShaderHandle;
 
     private final int mNbVertices;
-    private final int mNbVerticesSatelite;
+    private final int mNbVerticesSatellite;
 
     private final Context mContext;
     private Sphere mSphere;
 
     private boolean mTextureEnabled = false;
     private boolean mLightEnabled = false;
+
+    private long mPreviousTime = 0;
 
     public SphereRenderer(Context context) {
         mContext = context;
@@ -102,7 +103,7 @@ public class SphereRenderer extends Shape3DRenderer {
 
         // Calculate number of vertices required
         mNbVertices = 2 * Math.round((180 / SPHERE_ANGLE_STEP) * ((360 / SPHERE_ANGLE_STEP) + 1));
-        mNbVerticesSatelite = 2 * Math.round((180 / SATELITE_ANGLE_STEP) * ((360 / SATELITE_ANGLE_STEP) + 1));
+        mNbVerticesSatellite = 2 * Math.round((180 / SATELLITE_ANGLE_STEP) * ((360 / SATELLITE_ANGLE_STEP) + 1));
 
         // add non colored sphere in float buffer (XYZ + RGBA)
         mVerticesNoColor = getSphereVertices(colorLight, colorLight, colorLight, false,1, mNbVertices, SPHERE_ANGLE_STEP, SPHERE_RADIUS);
@@ -114,19 +115,19 @@ public class SphereRenderer extends Shape3DRenderer {
         mVerticesColorGradient = getSphereVertices(color1, color2, color3, true, 3, mNbVertices, SPHERE_ANGLE_STEP,  SPHERE_RADIUS);
 
         // add non colored sphere in float buffer (XYZ + RGBA)
-        mVerticesSateliteNoColor = getSphereVertices(colorLight, colorLight, colorLight,false, 1, mNbVerticesSatelite, SATELITE_ANGLE_STEP, SATELITE_RADIUS);
+        mVerticesSatelliteNoColor = getSphereVertices(colorLight, colorLight, colorLight,false, 1, mNbVerticesSatellite, SATELLITE_ANGLE_STEP, SATELLITE_RADIUS);
 
         // add non gradient colored sphere in float buffer (XYZ + RGBA)
-        mVerticesSateliteColor = getSphereVertices(color2, color3, color2,false, 1, mNbVerticesSatelite, SATELITE_ANGLE_STEP, SATELITE_RADIUS);
+        mVerticesSatelliteColor = getSphereVertices(color2, color3, color2,false, 1, mNbVerticesSatellite, SATELLITE_ANGLE_STEP, SATELLITE_RADIUS);
 
         // add gradient colored sphere in float buffer (XYZ + RGBA)
-        mVerticesSateliteColorGradient = getSphereVertices(color2, color3, color2,true, 2, mNbVerticesSatelite, SATELITE_ANGLE_STEP, SATELITE_RADIUS);
+        mVerticesSatelliteColorGradient = getSphereVertices(color2, color3, color2,true, 2, mNbVerticesSatellite, SATELLITE_ANGLE_STEP, SATELLITE_RADIUS);
 
         // add texture coordinates in float buffer (XY)
         mTextureCoordinateBuffer = getSphereTextureCoordinates(mNbVertices, SPHERE_ANGLE_STEP);
 
-        // add texture coordinates (case satelite) in float buffer (XY)
-        mTextureSateliteCoordinateBuffer = getSphereTextureCoordinates(mNbVerticesSatelite, SATELITE_ANGLE_STEP);
+        // add texture coordinates (case satellite) in float buffer (XY)
+        mTextureSatelliteCoordinateBuffer = getSphereTextureCoordinates(mNbVerticesSatellite, SATELLITE_ANGLE_STEP);
     }
 
     /**
@@ -336,39 +337,39 @@ public class SphereRenderer extends Shape3DRenderer {
     }
 
     /**
-     * Get back position of the satelite
+     * Get back position of the satellite
      * @return updated position which shall be applied to the translation
      */
-    private float[] getPositionSatelite() {
+    private float[] getPositionSatellite(long deltaTime) {
         float[] position = new float[3];
 
-        float angle = getDeltaTotal();
+        float angle = getDeltaTotalWithSpeed(deltaTime);
 
-        mSateliteAngle += angle;
-        if (mSateliteAngle < 0.0f) {
-            mSateliteAngle += 360.0f;
+        mSatelliteAngle += angle;
+        if (mSatelliteAngle < 0.0f) {
+            mSatelliteAngle += 360.0f;
         }
-        if (mSateliteAngle > 360.0f) {
-            mSateliteAngle -= 360.0f;
+        if (mSatelliteAngle > 360.0f) {
+            mSatelliteAngle -= 360.0f;
         }
 
-        float cos = (float) Math.cos(mSateliteAngle * Math.PI / 180.0);
-        float sin = (float) Math.sin(mSateliteAngle * Math.PI / 180.0);
+        float cos = (float) Math.cos(mSatelliteAngle * Math.PI / 180.0);
+        float sin = (float) Math.sin(mSatelliteAngle * Math.PI / 180.0);
 
-        float cos2 = (float) Math.cos(SATELITE_ORBIT_ANGLE * Math.PI / 180.0);
-        float sin2 = (float) Math.sin(SATELITE_ORBIT_ANGLE * Math.PI / 180.0);
+        float cos2 = (float) Math.cos(SATELLITE_ORBIT_ANGLE * Math.PI / 180.0);
+        float sin2 = (float) Math.sin(SATELLITE_ORBIT_ANGLE * Math.PI / 180.0);
 
-        position[0] = SATELITE_ORBIT_RADIUS * cos * cos2;
-        position[1] = SATELITE_ORBIT_RADIUS * cos * sin2;
-        position[2] = SATELITE_ORBIT_RADIUS * sin;
+        position[0] = SATELLITE_ORBIT_RADIUS * cos * cos2;
+        position[1] = SATELLITE_ORBIT_RADIUS * cos * sin2;
+        position[2] = SATELLITE_ORBIT_RADIUS * sin;
 
         return position;
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        // Set the background clear color to gray.
-        GLES20.glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+        // Set the background clear color to white.
+        GLES20.glClearColor(1f, 1f, 1f, 1f);
 
         // Use culling to remove back faces.
         GLES20.glEnable(GLES20.GL_CULL_FACE);
@@ -380,10 +381,9 @@ public class SphereRenderer extends Shape3DRenderer {
         // LESS (default value), passes if vertex's distance (depth) less than stored one
         GLES20.glDepthFunc(GLES20.GL_LESS);
 
-
-        // initialize fixed speed used for earth and satelite
+        // initialize fixed speed used for earth and satellite
         initFixedSpeed(10000.0f,0);
-        initFixedSpeed(1000.0f,1);
+        initFixedSpeed(1500.0f,1);
 
         // Position the eye behind the origin.
         final float eyeX = 0.0f;
@@ -427,7 +427,7 @@ public class SphereRenderer extends Shape3DRenderer {
         Matrix.setIdentityM(mAccumulatedRotation, 0);
 
         initDelta();
-        mSateliteAngle = 0.0f;
+        mSatelliteAngle = 0.0f;
 
         mSphere = new Sphere();
         mSphere.initSphere(mProgramHandle, mViewMatrix, mTextureEnabled, mLightEnabled);
@@ -435,11 +435,13 @@ public class SphereRenderer extends Shape3DRenderer {
         // Tell OpenGL to use this program when rendering.
         GLES20.glUseProgram(mProgramHandle);
 
-        // Prepare texture unit (planet and satelite)
+        // Prepare texture unit (planet and satellite)
         int[] textureIds = {R.drawable.planet, R.drawable.logo_st_256};
         mTextureDataHandles = new int[textureIds.length];
         mTextureDataHandles[0] = TextureHelper.loadTexture(mContext, textureIds[0]);
         mTextureDataHandles[1] = TextureHelper.loadTexture(mContext, textureIds[1], 0.2f);
+
+        mPreviousTime = SystemClock.uptimeMillis();
     }
 
     @Override
@@ -457,27 +459,27 @@ public class SphereRenderer extends Shape3DRenderer {
 
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
 
+        long time = SystemClock.uptimeMillis();
+
         float[] delta;
 
         if (mTextureEnabled) {
             float angleInDegrees = getAngleInDegreesFixedSpeed(0);
 
-            // Construct satelite model matrix
-            Matrix.setIdentityM(mModelSateliteMatrix, 0);
+            // Construct satellite model matrix
+            Matrix.setIdentityM(mModelSatelliteMatrix, 0);
 
-            float[] satelitePos = getPositionSatelite();
-            Matrix.translateM(mModelSateliteMatrix,0, satelitePos[0], satelitePos[1], satelitePos[2]);
+            float[] satellitePos = getPositionSatellite(time - mPreviousTime);
+            Matrix.translateM(mModelSatelliteMatrix,0, satellitePos[0], satellitePos[1], satellitePos[2]);
 
-            float angleSateliteInDegrees = getAngleInDegreesFixedSpeed(1);
-            Matrix.rotateM(mModelSateliteMatrix, 0, angleSateliteInDegrees, 0.0f, 1.0f, 0.0f);
+            float angleSatelliteInDegrees = getAngleInDegreesFixedSpeed(1);
+            Matrix.rotateM(mModelSatelliteMatrix, 0, angleSatelliteInDegrees, 0.0f, 1.0f, 0.0f);
 
             Matrix.setIdentityM(mModelMatrix, 0);
             Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f);
 
         } else {
-            delta = getDeltaAngle();
-
-            Timber.d("DeltaX = %f, DeltaY = %f", delta[0], delta[1]);
+            delta = getDeltaAngleWithSpeed(time - mPreviousTime);
 
             Matrix.setIdentityM(mModelMatrix, 0);
 
@@ -489,6 +491,8 @@ public class SphereRenderer extends Shape3DRenderer {
             Matrix.multiplyMM(mModelMatrix, 0, mAccumulatedRotation, 0, mModelMatrix, 0);
         }
 
+        mPreviousTime = time;
+
         // Light position (fixed)
         mLightPos[0] = 1.0f;
         mLightPos[1] = 1.0f;
@@ -498,11 +502,11 @@ public class SphereRenderer extends Shape3DRenderer {
         if (mTextureEnabled) {
             mSphere.draw(mVerticesNoColor, mTextureCoordinateBuffer, mTextureDataHandles, mLightPos, mModelMatrix, mNbVertices,0);
             if (isColored() && isColorGradient()) {
-                mSphere.draw(mVerticesSateliteColorGradient, mTextureSateliteCoordinateBuffer, mTextureDataHandles, mLightPos, mModelSateliteMatrix, mNbVerticesSatelite, 1);
+                mSphere.draw(mVerticesSatelliteColorGradient, mTextureSatelliteCoordinateBuffer, mTextureDataHandles, mLightPos, mModelSatelliteMatrix, mNbVerticesSatellite, 1);
             } else if (isColored() && ! isColorGradient()) {
-                mSphere.draw(mVerticesSateliteColor, mTextureSateliteCoordinateBuffer, mTextureDataHandles, mLightPos, mModelSateliteMatrix, mNbVerticesSatelite, 1);
+                mSphere.draw(mVerticesSatelliteColor, mTextureSatelliteCoordinateBuffer, mTextureDataHandles, mLightPos, mModelSatelliteMatrix, mNbVerticesSatellite, 1);
             } else {
-                mSphere.draw(mVerticesSateliteNoColor, mTextureSateliteCoordinateBuffer, mTextureDataHandles, mLightPos, mModelSateliteMatrix, mNbVerticesSatelite, 1);
+                mSphere.draw(mVerticesSatelliteNoColor, mTextureSatelliteCoordinateBuffer, mTextureDataHandles, mLightPos, mModelSatelliteMatrix, mNbVerticesSatellite, 1);
             }
         } else {
             if (isColored() && isColorGradient()) {

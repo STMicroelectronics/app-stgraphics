@@ -12,6 +12,7 @@ import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Point mCenter;
     private Point mOrigin = new Point(0,0);
+    private long mOriginTime = 0;
     private int mTouchLimitY;
 
     private boolean mLightEnabled = false;
@@ -297,6 +299,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Point destination = new Point((int) event.getX(), (int) event.getY());
+        long destTime = SystemClock.uptimeMillis();
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -315,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     if ((mOrigin.x != 0) || (mOrigin.y != 0)) {
                         float[] delta = Utility.getDelta(mOrigin, destination);
-                        mGraphicsRenderer.setDelta(delta);
+                        mGraphicsRenderer.setDeltaSpeed(delta, destTime - mOriginTime);
                     }
                 }
                 mSurface.requestRender();
@@ -323,6 +326,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mOrigin = destination;
+        mOriginTime = destTime;
 
         return true;
     }

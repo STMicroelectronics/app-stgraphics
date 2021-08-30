@@ -3,6 +3,7 @@ package com.stmicroelectronics.stgraphics.renderer.ThreeD;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import android.os.SystemClock;
 
 import com.stmicroelectronics.stgraphics.R;
 import com.stmicroelectronics.stgraphics.utils.ShaderHelper;
@@ -70,6 +71,8 @@ public class PyramidRenderer extends Shape3DRenderer {
 
     private final float[] mAccumulatedRotation = new float[16];
     private final float[] mCurrentRotation = new float[16];
+
+    private long mPreviousTime = 0;
 
     public PyramidRenderer(Context context) {
         mContext = context;
@@ -399,6 +402,8 @@ public class PyramidRenderer extends Shape3DRenderer {
         int[] textureIds = {R.drawable.logo_st_256, R.drawable.logo_stm32mp1_256};
 
         mTextureDataHandles = TextureHelper.loadTextures(mContext, textureIds, textureIds.length, 0.25f);
+
+        mPreviousTime = SystemClock.uptimeMillis();
     }
 
     @Override
@@ -415,7 +420,9 @@ public class PyramidRenderer extends Shape3DRenderer {
 
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
 
-        float[] delta = getDeltaAngle();
+        long time = SystemClock.uptimeMillis();
+        float[] delta = getDeltaAngleWithSpeed(time - mPreviousTime);
+        mPreviousTime = time;
 
         Matrix.setIdentityM(mModelMatrix, 0);
 

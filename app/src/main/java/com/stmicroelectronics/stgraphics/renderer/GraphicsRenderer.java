@@ -237,9 +237,6 @@ public class GraphicsRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-
-
-
     /**
      * Pause the active shape renderer
      */
@@ -294,6 +291,18 @@ public class GraphicsRenderer implements GLSurfaceView.Renderer {
     public void setDelta(float[] angle) {
         if ((m3DEnabled) && (mCurrent3DRenderer != null)) {
             mCurrent3DRenderer.setDelta(angle);
+        }
+    }
+
+    /**
+     * Set the XY speed to the active shape renderer
+     *
+     * @param angle delta XY angle in degrees
+     * @param deltaTime time in ms to reach the angle
+     */
+    public void setDeltaSpeed(float[] angle, long deltaTime) {
+        if ((m3DEnabled) && (mCurrent3DRenderer != null)) {
+            mCurrent3DRenderer.setDeltaSpeed(angle, deltaTime);
         }
     }
 

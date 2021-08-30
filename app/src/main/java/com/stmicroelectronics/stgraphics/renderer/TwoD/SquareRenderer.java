@@ -137,8 +137,8 @@ public class SquareRenderer extends Shape2DRenderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        // Set the background clear color to gray.
-        GLES20.glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+        // Set the background clear color to white.
+        GLES20.glClearColor(1f, 1f, 1f, 1f);
 
         // initialize previous time value
         initTime();

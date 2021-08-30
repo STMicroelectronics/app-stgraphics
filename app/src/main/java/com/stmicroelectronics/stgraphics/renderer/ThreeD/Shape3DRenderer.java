@@ -6,6 +6,7 @@ import android.os.SystemClock;
 public abstract class Shape3DRenderer implements GLSurfaceView.Renderer {
 
     private volatile float[] mDeltaAngle = new float[2];
+    private final float[] mDeltaSpeed = new float[2];
 
     private final static int MAX_FIXED_ANGLE_INSTANCES = 2;
     private final float[] mAngleFixed = new float[] {0.0f, 0.0f};
@@ -19,13 +20,21 @@ public abstract class Shape3DRenderer implements GLSurfaceView.Renderer {
 
     void initDelta() {
         if (! mPause) {
-            mDeltaAngle[0] = 5.0f;
-            mDeltaAngle[1] = 5.0f;
+            mDeltaAngle[0] = 2.0f;
+            mDeltaAngle[1] = 2.0f;
+            mDeltaSpeed[0] = mDeltaAngle[0] / 20;
+            mDeltaSpeed[1] = mDeltaAngle[1] / 20;
         }
     }
 
     public void setDelta(float[] delta) {
         mDeltaAngle = delta;
+    }
+
+    public void setDeltaSpeed(float[] delta, long deltaTime) {
+        mDeltaAngle = delta;
+        mDeltaSpeed[0] = delta[0] / deltaTime;
+        mDeltaSpeed[1] = delta[1] / deltaTime;
     }
 
     float[] getDeltaAngle() {
@@ -41,9 +50,38 @@ public abstract class Shape3DRenderer implements GLSurfaceView.Renderer {
         return delta;
     }
 
+    float[] getDeltaAngleWithSpeed(long deltaTime) {
+        if (mPause) {
+            return getDeltaAngle();
+        }
+
+        float[] delta = new float[2];
+
+        delta[0] = mDeltaSpeed[0] * deltaTime;
+        delta[1] = mDeltaSpeed[1] * deltaTime;
+
+        return delta;
+    }
+
     float getDeltaTotal() {
         float total = (float) Math.sqrt(Math.pow(mDeltaAngle[0], 2) + Math.pow(mDeltaAngle[1], 2));
         if ((mDeltaAngle[0] < 0.0f) && (mDeltaAngle[1] > 0.0f)) {
+            total = -total;
+        }
+        if (mPause) {
+            mDeltaAngle[0] = 0.0f;
+            mDeltaAngle[1] = 0.0f;
+        }
+        return total;
+    }
+
+    float getDeltaTotalWithSpeed(long deltaTime) {
+        if (mPause) {
+            return getDeltaTotal();
+        }
+
+        float total = (float) Math.sqrt(Math.pow(mDeltaSpeed[0] * deltaTime, 2) + Math.pow(mDeltaSpeed[1] * deltaTime, 2));
+        if ((mDeltaSpeed[0] < 0.0f) && (mDeltaSpeed[1] > 0.0f)) {
             total = -total;
         }
         return total;
@@ -153,7 +191,7 @@ public abstract class Shape3DRenderer implements GLSurfaceView.Renderer {
      * @return true if the shape is stationary
      */
     boolean isStationary() {
-        return (Math.abs(mDeltaAngle[0]) < 0.1f) && (Math.abs(mDeltaAngle[1]) < 0.1f);
+        return (Math.abs(mDeltaAngle[0]) < 0.2f) && (Math.abs(mDeltaAngle[1]) < 0.2f);
     }
 
     /**
